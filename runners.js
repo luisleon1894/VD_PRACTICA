@@ -10,189 +10,274 @@ var varEtiquetesTemps = 80;
 var xScaleLabel;
 var yScaleLabel;
 
-var showNAxisChart = 4;
+var showNAxisChart = 5;
 var separacioEntreKm = 10;
 
 file_ori = 'utmb_'
 file_new = 'df_'
+sourcefile1 = "./results/df_2016.csv"
+sourcefile2 = "./results/df_2017.csv"
+
 currentYear = 2017
 
-d3.csv("./results/" + file_new + currentYear + ".csv", function(data){
-
-	//Array[Names]
-	columnsName = d3.keys(data[0]).filter(isPlace)
-
-	//Array[distance]
-	columnDistance = Array.from({length: columnsName.length}, (_, i) => i * 10)
+// allYears = ["./results/df_2016.csv", "./results/df_2017.csv"]
+allYears = ["Results UTMB 2016", "Results UTMB 2017"]
 
 
-	//se modifica el valor de columnsName por un valor entero, representa los segundos
-	// for(var i = 0; i < data.length; i++){
+d3.select("#selectButton")
+      .selectAll('myOptions')
+      .data(allYears)
+      .enter()
+      .append('option')
+      .text(function (d) { return d; }) // text showed in the menu
+      .attr("value", function (d) { return d; }) // corresponding value returned by the button
 
-	// 	columnsName.forEach(function(key){
+function updateChart(result_selected) {
 
-	// 		var time = data[i][key]
+	year = result_selected.slice(-4)
+	sourcefile = "./results/df_" + year + ".csv"
 
-	// 		var hour = time.slice(0, 2);
-	// 		var min = time.slice(3, 5);
-	// 		var sec = time.slice(6, 8);
-	// 		data[i][key] = (parseInt(hour) * 60 * 60) + (parseInt(min) * 60) + parseInt(sec)
-	// 	});
-	// }
-
-	// *****************
-	// Points runners
-	// *****************
-
-	var dataRunners = data.slice(0, data.length)
-
-	for(runner in dataRunners){
-
-		var points = [];
+	d3.csv(sourcefile, function(data){
 
 		
-	 	for(place in columnsName){
+		//Array[Names]
+		columnsName = d3.keys(data[0]).filter(isPlace)
 
-	 		var position_place = columnsName[place].toLowerCase() + "_pos"
-	 		//console.log(position_place);
-	 		// sum to y ---> parseInt(data[runner][position_place])
+		//Array[distance]
+		columnDistance = Array.from({length: columnsName.length}, (_, i) => i * 10)
 
-	 		points.push({id: parseInt(runner),
-	 						x: parseFloat(columnDistance[place]),
-	 						y: parseInt(data[runner][columnsName[place]]) + parseInt(data[runner][position_place]),
-	 		});
 
-		    labelsDataRunner.push({id: parseInt(runner),
-	                x: parseFloat(columnDistance[place]),
-	                y: parseInt(data[runner][columnsName[place]]) + parseInt(data[runner][position_place]),
-	                elapsedTime: myTime(data[runner][columnsName[place]])
-	              })
+		// *****************
+		// Points runners
+		// *****************
 
-	 	}
-		
-		runners.push({id: parseInt(runner), name: data[runner]["name"]})
-		timeDataRunner.push(points)
+		var dataRunners = data.slice(0, data.length)
 
-	}
+		for(runner in dataRunners){
 
-	columnDistance_reverse = columnDistance.reverse()
+			var points = [];
 
-	//************************************************************
-	// Create Margins and Axis and hook our zoom function
-	//************************************************************
+			
+		 	for(place in columnsName){
 
-	var self = this;
-	this.cx = 1650; //amplada en pixels de l'interior (amb padding inclos)
-	this.cy = 750; //altura en pixels de l'interior (amb padding inclos)
+		 		var position_place = columnsName[place].toLowerCase() + "_pos"
+		 		//console.log(position_place);
+		 		// sum to y ---> parseInt(data[runner][position_place])
 
-	var margin = {top: 0, right: 40, bottom: 20, left: 40},
-	  width = this.cx - margin.left - margin.right;
+		 		points.push({id: parseInt(runner),
+		 						x: parseFloat(columnDistance[place]),
+		 						y: parseInt(data[runner][columnsName[place]]) + parseInt(data[runner][position_place]),
+		 		});
 
-	height = this.cy - margin.top - margin.bottom;
+			    labelsDataRunner.push({id: parseInt(runner),
+		                x: parseFloat(columnDistance[place]),
+		                y: parseInt(data[runner][columnsName[place]]) + parseInt(data[runner][position_place]),
+		                elapsedTime: data[runner][columnsName[place]].toString().toHHMMSS(),
+		                provPosition: data[runner][position_place], 
+		                name: data[runner]['name']
+		              })
 
-	var xScale = d3.scaleLinear()
-	  .domain([parseFloat(columnDistance_reverse[0]) , 0])
-	  .range([0, width])
-	  //.domain([0, columnDistance_reverse[0].length - 1])
-	 
-	xScaleLabel = xScale;
+		 	}
+			
+			runners.push({id: parseInt(runner), name: data[runner]["name"]})
+			timeDataRunner.push(points)
 
-	var yScale = d3.scaleLinear()
-	  .domain([0, valorElapsedMax(timeDataRunner)])
-	  .range([0, height])
+		}
+		//columnDistance = columnDistance.reverse()
 
-	yScaleLabel = yScale;
+		//************************************************************
+		// Create Margins and Axis and hook our zoom function
+		//************************************************************
 
-	var xAxis = d3.axisBottom(xScale)
-		.tickValues(columnDistance_reverse)
-		.tickFormat(d3.format('.1f'))
-		//.tickFormat(function(d){
-		//	return columnsName[d];
-		//})
+		var self = this;
+		this.cx = 1650; //amplada en pixels de l'interior (amb padding inclos)
+		this.cy = 750; //altura en pixels de l'interior (amb padding inclos)
+
+		var margin = {top: 0, right: 70, bottom: 50, left: 70},
+		  width = this.cx - margin.left - margin.right;
+
+		height = this.cy - margin.top - margin.bottom;
+
+		var xScale = d3.scaleLinear()
+		  .domain([0, columnDistance[columnDistance.length -1]])
+		  .range([0, width])
+
+		xScaleLabel = xScale;
+
+		var yScale = d3.scaleLinear()
+		  .domain([0, valorElapsedMax(timeDataRunner)])
+		  .range([0, height])
+
+		yScaleLabel = yScale;
+
+		var xAxis = d3.axisBottom(xScale)
+			.tickValues(columnDistance)
+			.tickFormat(function(d){
+				var tick_text = (columnsName[d/10]).toString()
+				return tick_text;
+			})
+			.tickPadding(10)
+			.tickSize(-height)
+			//.tickFormat(d3.format('.1f'))
+
+		var yAxis = d3.axisLeft(yScale)
 		.tickPadding(10)
-		.tickSize(-height)
-	// .ticks(6)
+		.tickSize(-width)
+		.ticks(5)
 
-	var yAxis = d3.axisLeft(yScale)
-	.tickPadding(10)
-	.tickSize(-width)
-	.ticks(5)
+		var zoom = d3.zoom()
+		  .scaleExtent([1,20])
+		  .translateExtent([[0, 0], [width, height]]) 
+		  .extent([[0, 0], [width, height]])
+		  .duration([750])
+		  .on("zoom", zoomed);
+
+		//************************************************************
+		// Generate our SVG object
+		//************************************************************  
 
 
-	//************************************************************
-	// Generate our SVG object
-	//************************************************************  
+		svg = d3.select("#stage_id")
+		 .append("svg")
+		 .attr("viewBox", "-40 20 1650 750")
+		 .style("overflow", "visible")
+		 .call(zoom)
+
+		
+	 	// svg = d3.select('#stage_id').append("svg")
+		 //    .attr("width", '100%')
+		 //    .attr("height", '100%')
+		 //    .attr('viewBox','0 0 '+Math.min(width,height)+' '+Math.min(width,height))
+		 //    .attr('preserveAspectRatio','xMinYMin')
+		 //    .style("overflow", "visible")
+		 //    .call(zoom)
+		
+
+		zoom.scaleBy(svg.transition().duration(750), 0.1)
+
+		var arr_km_show = updateAxisPlace(xScale.domain(), columnDistance);
+
+		var gX = svg.append("g")
+		        .attr("class", "x axis")
+		        .attr("transform", "translate(0," + height + ")")
+		        .call(xAxis)
+		        .selectAll(".tick")
+		        .style("display", function(){
+		          if(arr_km_show.includes(parseFloat(this.textContent))) return "";
+		          else return "none";
+		        });
+
+		var gY = svg.append("g")
+		          .attr("class", "y axis")
+		          .call(yAxis)
+		          .selectAll(".tick")
+		          .style("display", "none");
+
+		svg.append("clipPath")
+			.attr("id", "clip")
+			.append("rect")
+			.attr("width", width)
+			.attr("height", height);
+
+		//************************************************************
+		// Create D3 line object + Pintar las lineas (corredores)
+		//************************************************************
+
+		var line = d3.line()
+		  .x(function(d) { return xScale(d.x); })
+		  .y(function(d) { return yScale(d.y); });   
+
+		svg.selectAll('.line')
+			.data(timeDataRunner)
+			.enter()
+			.append("path")
+			.attr("class", "line")
+			.attr("clip-path", "url(#clip)")
+			.attr("d", line)
+			.attr("id", function(d){
+			  return "r"+d[0].id;
+		});
+
+		//************************************************************
+	  	// Zoom specific updates
+	 	 //************************************************************
+	  	function zoomed() {
+
+		    // create new scale ojects based on event
+		    var new_xScale = d3.event.transform.rescaleX(xScale);
+		    var new_yScale = d3.event.transform.rescaleY(yScale);
+
+		    // guarda scale dels labels per si es fa selectRider despres de zoom
+		    xScaleLabel = new_xScale; 
+		    yScaleLabel = new_yScale;
+
+		    var arr_km_show = updateAxisPlace(new_xScale.domain(), columnDistance);
+
+		    // re-scale axes
+		    svg.select(".y.axis")
+		        .call(yAxis.scale(new_yScale))
+		        .selectAll(".tick")
+		        .style("display", "none");;
+
+		    svg.select(".x.axis")
+		        .call(xAxis.scale(new_xScale))
+		        .selectAll(".tick")
+		        .style("display", function(){
+		          if(arr_km_show.includes(this.textContent)){ 
+		          	return "";
+		          }
+		          else {
+		          	return "none";
+		          }
+		        });
 
 
-	svg = d3.select("#stage_id")
-	 .append("svg")
-	 .attr("viewBox", "-40 20 1650 750")
-	 .style("overflow", "visible")
-	
+		    // re-draw line
+		    plotLine = d3.line()
+		        .x(function (d) {
+		            return new_xScale(d.x);
+		        })
+		        .y(function (d) {
+		            return new_yScale(d.y);
+		        });
 
-	//var arr_kmMostrar = updateAxisXKm(xScale.domain(), columnDistance_reverse);
-	var arr_km_show = columnDistance_reverse
+		    svg.selectAll('path.line').attr("d", plotLine);
 
-	var gX = svg.append("g")
-	        .attr("class", "x axis")
-	        .attr("transform", "translate(0," + height + ")")
-	        .call(xAxis)
-	        .selectAll(".tick")
-	        .style("display", function(){
-	          if(arr_km_show.includes(parseFloat(this.textContent))) return "";
-	          else return "none";
-	        });
 
-	var gY = svg.append("g")
-	          .attr("class", "y axis")
-	          .call(yAxis)
-	          .selectAll(".tick")
-	          .style("display", "none");
-
-	svg.append("clipPath")
-		.attr("id", "clip")
-		.append("rect")
-		.attr("width", width)
-		.attr("height", height);
-
-	//************************************************************
-	// Create D3 line object + Pintar las lineas (corredores)
-	//************************************************************
-
-	var line = d3.line()
-	  .x(function(d) { return xScale(d.x); })
-	  .y(function(d) { return yScale(d.y); });   
-
-	svg.selectAll('.line')
-		.data(timeDataRunner)
-		.enter()
-		.append("path")
-		.attr("class", "line")
-		.attr("clip-path", "url(#clip)")
-		.attr("d", line)
-		.attr("id", function(d){
-		  return "r"+d[0].id;
+		    //re-draw dots
+		    svg.selectAll("circle")
+		      .attr("cx",  function(d) {
+		        return new_xScale(d.x);
+		      })
+		      .attr("cy",  function(d) {
+		        return new_yScale(d.y);
+		      })
+	  	}
 	});
-});
 
-function myTime(time) {
-  var hr = ~~(time / 3600);
-  var min = ~~((time % 3600) / 60);
-  var sec = time % 60;
-  var sec_min = "";
-  if (hr > 0) {
-     sec_min += "" + hr + ":" + (min < 10 ? "0" : "");
-  }
-  if(isNaN(sec)) return "-";
-  sec_min += "" + min + "' " + (sec < 10 ? "0" : "");
-  sec_min += "" + sec + "\"";
-  return sec_min;
 }
 
-function updateAxisXKm(arryDomain, columnsKm){
+updateChart(allYears[0]);
 
-    var km_maxim_vist = arryDomain[0];
-    var km_minim_vist = arryDomain[1];
+
+String.prototype.toHHMMSS = function () {
+    var sec_num = parseInt(this, 10); // don't forget the second param
+    var hours   = Math.floor(sec_num / 3600);
+    var minutes = Math.floor((sec_num - (hours * 3600)) / 60);
+    var seconds = sec_num - (hours * 3600) - (minutes * 60);
+
+    if (hours   < 10) {hours   = "0"+hours;}
+    if (minutes < 10) {minutes = "0"+minutes;}
+    if (seconds < 10) {seconds = "0"+seconds;}
+    return hours+':'+minutes+':'+seconds;
+}
+
+
+
+function updateAxisPlace(arryDomain, columnsDistance){
+
+    var km_minim_vist = arryDomain[0];
+    var km_maxim_vist = arryDomain[1];
 
     var rang_visio = km_maxim_vist - km_minim_vist;
 
@@ -204,37 +289,39 @@ function updateAxisXKm(arryDomain, columnsKm){
 
     var inc_rang = rang_ampliat - rang_visio;
 
-    var km_min = km_minim_vist - inc_rang / 2;
-    arrKmMostrar = [];
+    var km_min =  km_minim_vist - (inc_rang / 2);
+
+    arrPlaceShow = [];
 
     if(rang_visio > (separacioEntreKm * (showNAxisChart + 1))){
 
       for (var i = 1; i <= showNAxisChart ; i++){
         var km = Math.round((km_min + i * inc_ampliat) / separacioEntreKm) * separacioEntreKm;
-        arrKmMostrar.push(km);
+        arrPlaceShow.push(km);
       }
     }
     else{
 
       var inici;
-      for(var i = 0; i < columnsKm.length; i++){ //busquem el primer km vist
-        if(km_maxim_vist >= parseFloat(columnsKm[i])){ 
+      for(var i = 0; i < columnsDistance.length; i++){ //busquem el primer km vist
+        if(km_maxim_vist >= parseFloat(columnsDistance[i])){ 
           inici = i; 
           break;
         }
       }
-      var final = columnsKm.length - 1;
-      for(var i = inici + 1; i < columnsKm.length; i++){ //busquem el darrer km vist
+      var final = columnsDistance.length - 1;
+      for(var i = inici + 1; i < columnsDistance.length; i++){ //busquem el darrer km vist
 
-        if(km_minim_vist <= parseFloat(columnsKm[i])){
+        if(km_minim_vist <= parseFloat(columnsDistance[i])){
          final = i;
         }
       }
 
+
       if(final - inici < showNAxisChart){ //si no n'hi ha masses, els guardo tots
       
-        for(var j = inici; j < columnsKm.length; j++){
-          arrKmMostrar.push(parseFloat(columnsKm[j]))
+        for(var j = inici; j < columnsDistance.length; j++){
+          arrPlaceShow.push(parseFloat(columnsDistance[j]))
         }
       }
       else{ //n'hi ha masses, miro quins hauria de mostrar i els busco
@@ -247,19 +334,27 @@ function updateAxisXKm(arryDomain, columnsKm){
         var j=0;
         for(var i = inici; i < final-1 && j < showNAxisChart; i++){
 
-          if(columnsKm[i] >= kms[j] && columnsKm[i+1] < kms[j]){
-            arrKmMostrar.push(parseFloat(columnsKm[i]))
+          if(columnsDistance[i] >= kms[j] && columnsDistance[i+1] < kms[j]){
+            arrPlaceShow.push(parseFloat(columnsDistance[i]))
             j++;
 
           }
         }
       }      
     }
-    arrKmMostrar = arrKmMostrar.filter(function(element){
-      return element <= arryDomain[0] && element >= arryDomain[1];
+
+    arrPlaceShow = arrPlaceShow.filter(function(element){
+      return element <= arryDomain[1] && element >= arryDomain[0];
     });
 
-    return arrKmMostrar;
+ 	place_idx_show = arrPlaceShow.map(function(item) { return item/10 })
+
+ 	arr_place_name = []
+
+ 	for(var i = 0; i < place_idx_show.length; i++){
+ 		arr_place_name.push(columnsName[place_idx_show[i]])
+ 	}
+    return arr_place_name;
 }
 
 
