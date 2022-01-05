@@ -1,0 +1,66 @@
+body, html {
+  font: 10px sans-serif;
+  position: static;
+  font-size:100%;
+  font-family: Verdana, Geneva, sans-serif
+}
+
+/**** Class in D3 ****/
+
+.svg-container {
+  display: inline-block;
+  position: relative;
+  width: 100%;
+  height: 100%
+  vertical-align: top;
+  overflow: visible;
+  
+}
+.svg-content-responsive {
+  display: inline-block;
+  top: 10px;
+  left: 0;
+  overflow: visible;
+}
+
+.axis path {
+    fill: none;
+    stroke: black;
+    shape-rendering: crispEdges;
+}
+ 
+.axis text {
+    fill: black;
+    font-size: 15px;
+}
+ 
+.axis line {    
+    stroke: black;
+    shape-rendering: geometricPrecision;
+}
+ 
+.axis .axis-label {
+    font-size: 14px;
+}
+ 
+.timeGroup {
+    font-size: 15px;
+}
+
+.dot{
+
+}
+
+.line {
+    fill: none;
+    stroke-width: 1px;
+    stroke: #A9A9A9;
+}
+
+.active, .line:hover {
+    stroke: #269630 !important;
+    stroke-width: 2.5px !important;   
+}
+
+
+
