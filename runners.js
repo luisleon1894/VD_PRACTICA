@@ -13,18 +13,12 @@ var yScaleLabel;
 var showNAxisChart = 5;
 var separacioEntreKm = 10;
 
-file_ori = 'utmb_'
-file_new = 'df_'
-sourcefile1 = "./results/df_2016.csv"
-sourcefile2 = "./results/df_2017.csv"
 
-currentYear = 2017
+allYears = ["YEAR 2008", "YEAR 2009", "YEAR 2011", "YEAR 2012","YEAR 2014","YEAR 2015","YEAR 2016", "YEAR 2017", "YEAR 2018", "YEAR 2019", "YEAR 2021"]
 
-// allYears = ["./results/df_2016.csv", "./results/df_2017.csv"]
-allYears = ["Results UTMB 2016", "Results UTMB 2017"]
+n_runners = ["Top 5", "Top 10", "Top 50", "Top 100", "Top 500", "Top 1000", "ALL"]
 
-
-d3.select("#selectButton")
+d3.select("#selectYear")
       .selectAll('myOptions')
       .data(allYears)
       .enter()
@@ -32,14 +26,30 @@ d3.select("#selectButton")
       .text(function (d) { return d; }) // text showed in the menu
       .attr("value", function (d) { return d; }) // corresponding value returned by the button
 
-function updateChart(result_selected) {
+d3.select("#selectRunnersNumber")
+	      .selectAll('myOptions')
+	      .data(n_runners)
+	      .enter()
+	      .append('option')
+	      .text(function (d) { return d; }) // text showed in the menu
+	      .attr("value", function (d) { return d; }) // corresponding value returned by the button
 
-	year = result_selected.slice(-4)
-	sourcefile = "./results/df_" + year + ".csv"
+function updateChart(year_selected, top_selected) {
+	
+	year = year_selected.slice(-4)
+	sourcefile = "./final_csv/df_" + year + ".csv"
 
 	d3.csv(sourcefile, function(data){
 
-		
+		rank = 5 // by default
+
+		if(top_selected == "ALL"){
+			rank = data.length - 1
+		}
+		else{
+			rank = top_selected.slice(top_selected.indexOf(" "), top_selected.length)
+		}
+			
 		//Array[Names]
 		columnsName = d3.keys(data[0]).filter(isPlace)
 
@@ -51,7 +61,9 @@ function updateChart(result_selected) {
 		// Points runners
 		// *****************
 
-		var dataRunners = data.slice(0, data.length)
+		//n_runners = data.length
+		n_runners = parseInt(rank) + 1
+		var dataRunners = data.slice(0, n_runners)
 
 		for(runner in dataRunners){
 
@@ -61,8 +73,6 @@ function updateChart(result_selected) {
 		 	for(place in columnsName){
 
 		 		var position_place = columnsName[place].toLowerCase() + "_pos"
-		 		//console.log(position_place);
-		 		// sum to y ---> parseInt(data[runner][position_place])
 
 		 		points.push({id: parseInt(runner),
 		 						x: parseFloat(columnDistance[place]),
@@ -83,7 +93,6 @@ function updateChart(result_selected) {
 			timeDataRunner.push(points)
 
 		}
-		//columnDistance = columnDistance.reverse()
 
 		//************************************************************
 		// Create Margins and Axis and hook our zoom function
@@ -93,7 +102,7 @@ function updateChart(result_selected) {
 		this.cx = 1650; //amplada en pixels de l'interior (amb padding inclos)
 		this.cy = 750; //altura en pixels de l'interior (amb padding inclos)
 
-		var margin = {top: 0, right: 70, bottom: 50, left: 70},
+		var margin = {top: 0, right: 50, bottom: 0, left: 50},
 		  width = this.cx - margin.left - margin.right;
 
 		height = this.cy - margin.top - margin.bottom;
@@ -207,7 +216,7 @@ function updateChart(result_selected) {
 		    var new_xScale = d3.event.transform.rescaleX(xScale);
 		    var new_yScale = d3.event.transform.rescaleY(yScale);
 
-		    // guarda scale dels labels per si es fa selectRider despres de zoom
+		    // save scale of labels if select a runner after zoomed
 		    xScaleLabel = new_xScale; 
 		    yScaleLabel = new_yScale;
 
@@ -257,7 +266,7 @@ function updateChart(result_selected) {
 
 }
 
-updateChart(allYears[0]);
+updateChart(allYears[0], n_runners[0]);
 
 
 String.prototype.toHHMMSS = function () {

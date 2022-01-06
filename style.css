@@ -1,26 +1,197 @@
-body, html {
+/*body, html {
   font: 10px sans-serif;
   position: static;
   font-size:100%;
   font-family: Verdana, Geneva, sans-serif
 }
+*/
 
-/**** select year ****/
+#container {
+  height: 10%;
+  width: 90%;
+  display: flex;
+}
+#leftThing {
+  margin:20px auto 20px auto; 
+  width: 20%;
+  text-align: center;
+  /*background-color: blue;*/
+  font-size: 17px;
+}
+#content {
+  width: 20%;
+  margin:20px auto 20px auto;
+  text-align: center;
+  /*background-color: green;*/
+  font-size: 17px;
+}
+#rightThing {
+  width: 20%;
+  margin:20px auto 20px auto; 
+  text-align: center;
+  /*background-color: yellow;*/
+  font-size: 17px;  
+}
 
-.caja {
-   margin:20px auto 40px auto;  
+.centerButton{
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 20px;
+  /*border: 3px solid #e7e7e7; */
+}
+
+#buttonId {
+  width: 20%;
+  margin: 20px auto 20px auto;
+  text-align: center;
+  font-size: 17px;  
+}
+
+/*#buttonId:hover {background-color: #e7e7e7;}*/
+
+/*.button {
+  background-color: #4CAF50;
+  border: 2px;
+  color: white;
+  padding: 16px 32px;
+  text-align: center;
+  text-decoration: none;
+  display: inline-block;
+  font-size: 17px;
+  margin:20px auto 10px auto; 
+  transition-duration: 0.4s;
+  cursor: pointer;
+  margin-right: 0px  
+}
+
+.button1 {
+  background-color: white;
+  color: black;
+  border: 2px solid #e7e7e7;
+}
+
+.button1:hover {background-color: #e7e7e7;}*/
+
+/*.buttonRefresh {
+  width: 20%;
+  margin:20px auto 20px auto; 
+  text-align: center;
+}*/
+
+body { 
+  display: grid;
+  grid-template-areas: 
+    "header header header"
+    "nav article ads"
+    "footer footer footer";
+  grid-template-rows: 60px 1fr 60px;
+  grid-template-columns: 10% 1fr 10%;
+  grid-gap: 10px;
+  height: 100vh;
+  margin: 0;
+  font: 10px sans-serif;
+  background-color: #FFFAF0
+}
+
+/* Stack the layout on small devices/viewports. */
+@media all and (max-width: 575px) {
+  body { 
+    grid-template-areas: 
+      "header"
+      "article"
+      "ads"
+      "nav"
+      "footer";
+    grid-template-rows: 80px 1fr 70px 1fr 70px;  
+    grid-template-columns: 1fr;
+ }
+}
+
+#pageHeader {
+  grid-area: header;
+  text-align: center;
+  font-size: 40px;
+}
+#pageFooter {
+  grid-area: footer;
+}
+#mainArticle { 
+  grid-area: article;      
+}
+#mainNav { 
+  grid-area: nav; 
+}
+#siteAds { 
+  grid-area: ads; 
+}
+
+header, footer, article, nav, div {
+  padding: 20px;
+  /*background: gold;*/
+}
+
+p.bigheight {
+  line-height: 1.8;
+}
+
+p{
+    font-family: sans-serif;
+    color: black;
+    margin: 50px;
+    font-size: 17px;
+}
+
+/**** refresh ****/
+
+.cajaButton {
+   margin:20px auto 20px auto;  
    border:2px solid #d9d9d9;
    height:50px;
    overflow: hidden;
    width: 230px;
    position:relative;
+   margin-left: 35px;
+   width: 20%;
+}
+
+
+button:focus{ 
+  outline: none;
+
+}
+
+
+button {
+   background: transparent;
+   border: none;
+   font-size: 17px;
+   height: 30px;
+   padding: 5px;
+   text-align:center;
+   width: 250px;
+   
+}
+
+/**** select year ****/
+
+.caja {
+   margin:20px auto 20px auto;  
+   border:2px solid #d9d9d9;
+   height:50px;
+   overflow: hidden;
+   width: 230px;
+   position:relative;
+   margin-left: 35px;
+   width: 20%;
 }
 select {
    background: transparent;
    border: none;
-   font-size: 20px;
+   font-size: 17px;
    height: 30px;
    padding: 5px;
+   text-align:center;
    width: 250px;
 }
 select:focus{ outline: none;}
@@ -50,11 +221,11 @@ select:focus{ outline: none;}
  
 .axis text {
     fill: black;
-    font-size: 15px;
+    font-size: 22px;
 }
  
 .axis line {    
-    stroke: black;
+    stroke: #A9A9A9;
     shape-rendering: geometricPrecision;
 /*    shape-rendering: crispEdges;
 */}
@@ -70,7 +241,7 @@ select:focus{ outline: none;}
 
 .line {
     fill: none;
-    stroke-width: 1px;
+    stroke-width: 2px;
     stroke: #88a886
     /*stroke: #A9A9A9;*/
 }
@@ -87,7 +258,7 @@ select:focus{ outline: none;}
 div.tooltip {   
     position: absolute;         
     text-align: left;         
-    width: 170px;                    
+    width: 200px;                    
     height: 35px;                   
     padding: 7px;               
     font: 12px sans-serif;      
@@ -100,7 +271,7 @@ div.tooltip {
 div.tooltipRunner {   
     position: absolute;         
     text-align: right;         
-    width: 170px;                    
+    width: 200px;                    
     height: 35px;                   
     padding: 7px;               
     font: 12px sans-serif;      

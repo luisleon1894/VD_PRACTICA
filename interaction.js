@@ -13,14 +13,26 @@ $(document).on('click', 'path.line', function(event, i){
 
 });
 
-d3.select("#selectButton").on("change", function(d) {
+d3.select("#selectYear").on("change", function(d) {
     // recover the option that has been chosen
     var year_selected = d3.select(this).property("value")
     d3.select("svg").remove();
     timeDataRunner = [];
     labelsDataRunner = []; //informacio de les etiquetes
     arrKmMostrar = [];
-    updateChart(year_selected)
+    document.getElementById("selectRunnersNumber").selectedIndex = 0;
+    updateChart(year_selected, "Top 5")
+})
+
+d3.select("#selectRunnersNumber").on("change", function(d) {
+    // recover the option that has been chosen
+    d3.select("svg").remove();
+    timeDataRunner = [];
+    labelsDataRunner = []; //informacio de les etiquetes
+    arrKmMostrar = [];
+    selected_year = document.getElementById("selectYear").value;
+    top_selected = d3.select(this).property("value")
+    updateChart(selected_year, top_selected) //update the same year chart, other lines
 })
 
 function showRunner(id_runner, runners, elem){
@@ -42,7 +54,7 @@ function refresh(){
 
     d3.selectAll(".line").classed("active", false)
                          .style("stroke", "")
-                         .style("stroke-width", "1px");
+                         .style("stroke-width", "2px");
 
     d3.selectAll("circle").remove();
     $( ".card" ).remove();     
