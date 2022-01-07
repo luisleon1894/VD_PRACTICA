@@ -1,14 +1,20 @@
-var colors = ["#e41a1c", "#377eb8", "#4daf4a", "#7570b3"]
-var ridersSelect = [];
+// var colors = ["#e41a1c", "#377eb8", "#4daf4a", "#7570b3"]
+// var ridersSelect = [];
 
+var line_select = -1
+var line_unselect = -1
 
 $(document).on('click', 'path.line', function(event, i){
 
-    var id = parseInt((this.id).slice(1, (this.id).length));
+    // var id = parseInt((this.id).slice(1, (this.id).length));
+    removeLine(line_unselect);
 
-    indexColor = 0;
-    refresh();
-    showRunner(id, runners, this);
+    line_select = parseInt((this.id).slice(1, (this.id).length));
+    line_unselect = line_select
+
+    indexColor = 3
+    var clicked = d3.select(this);
+    showRunner(line_select, runners, clicked, indexColor);
     
 
 });
@@ -20,6 +26,7 @@ d3.select("#selectYear").on("change", function(d) {
     timeDataRunner = [];
     labelsDataRunner = []; //informacio de les etiquetes
     arrKmMostrar = [];
+    runners = [];
     document.getElementById("selectRunnersNumber").selectedIndex = 0;
     updateChart(year_selected, "Top 5")
 })
@@ -30,34 +37,51 @@ d3.select("#selectRunnersNumber").on("change", function(d) {
     timeDataRunner = [];
     labelsDataRunner = []; //informacio de les etiquetes
     arrKmMostrar = [];
+    runners = [];
     selected_year = document.getElementById("selectYear").value;
     top_selected = d3.select(this).property("value")
     updateChart(selected_year, top_selected) //update the same year chart, other lines
 })
 
-function showRunner(id_runner, runners, elem){
+function showWinners(runners){
+
+    w1_name = runners[FIRST].name
+    w2_name = runners[SECOND].name
+    w3_name = runners[THIRD].name
+
+    w1_last_name = w1_name.slice(0, w1_name.indexOf(" "))
+    w2_last_name = w2_name.slice(0, w2_name.indexOf(" "))
+    w3_last_name = w3_name.slice(0, w3_name.indexOf(" "))
+
+    document.getElementById("winner1").innerHTML = "<b>"+w1_last_name+"</b>";
+    document.getElementById("winner2").innerHTML = "<b>"+w2_last_name+"</b>";
+    document.getElementById("winner3").innerHTML = "<b>"+w3_last_name+"</b>";  
+}
+
+function showRunner(id_runner, runners, clicked, indexColor){
 
 
   var riderStage = runners.filter(r => r.id === id_runner);
   
-  var clicked = d3.select(elem);
 
   clicked.style("stroke", colors[indexColor])
-    .style("stroke-width", "2.5px");
+    .style("stroke-width", "3.5px");
 
   showLabelInformation(riderStage);
 
 }
 
-//refresh all on delete keyboard event
-function refresh(){
+//removeLine selected
+function removeLine(idLineSelected){
 
-    d3.selectAll(".line").classed("active", false)
-                         .style("stroke", "")
-                         .style("stroke-width", "2px");
+    d3.select("#r"+idLineSelected).classed("active", false)
+                                  .style("stroke", "")
+                                  .style("stroke-width", "2px");
 
-    d3.selectAll("circle").remove();
-    $( ".card" ).remove();     
+    svg.selectAll('circle').each(function(d,i) { 
+        if(d.id === idLineSelected)
+            this.remove();
+    });    
 }
 
 function showLabelInformation(runners){
@@ -93,7 +117,7 @@ function showLabelInformation(runners){
                .duration(200)    
                .style("opacity", .9);    
 
-            div.html("Elapsed time: " + d.elapsedTime + "<br/>"  + "Provisional Position: " + d.provPosition + "<br/>"  + "Name: " + d.name)  
+            div.html("Elapsed time: " + d.elapsedTime + "<br/>"  + "Name: " + d.name.slice(0, d.name.indexOf(" ")))  
                .style("left", (d3.event.pageX + 5) + "px")   
                .style("top", (d3.event.pageY - 30) + "px"); 
             

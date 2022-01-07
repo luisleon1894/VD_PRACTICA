@@ -4,8 +4,12 @@ var timeDataRunner = [];
 var labelsDataRunner = []; //informacio de les etiquetes
 var arrKmMostrar = [];
 var runners = [];
-
-var varEtiquetesTemps = 80;
+var ridersSelect = [];
+var FIRST = 0
+var SECOND = 1
+var THIRD = 2
+// var colors = ["#e41a1c", "#377eb8", "#4daf4a", "#7570b3"]
+var colors = ["#e41a1c", "#377eb8", "#4daf4a", "#984ea3", "#ff7f00"]
 
 var xScaleLabel;
 var yScaleLabel;
@@ -76,12 +80,12 @@ function updateChart(year_selected, top_selected) {
 
 		 		points.push({id: parseInt(runner),
 		 						x: parseFloat(columnDistance[place]),
-		 						y: parseInt(data[runner][columnsName[place]]) + parseInt(data[runner][position_place]),
+		 						y: parseInt(data[runner][columnsName[place]]) + 200,
 		 		});
 
 			    labelsDataRunner.push({id: parseInt(runner),
 		                x: parseFloat(columnDistance[place]),
-		                y: parseInt(data[runner][columnsName[place]]) + parseInt(data[runner][position_place]),
+		                y: parseInt(data[runner][columnsName[place]]) + 200,
 		                elapsedTime: data[runner][columnsName[place]].toString().toHHMMSS(),
 		                provPosition: data[runner][position_place], 
 		                name: data[runner]['name']
@@ -127,7 +131,6 @@ function updateChart(year_selected, top_selected) {
 			})
 			.tickPadding(10)
 			.tickSize(-height)
-			//.tickFormat(d3.format('.1f'))
 
 		var yAxis = d3.axisLeft(yScale)
 		.tickPadding(10)
@@ -146,13 +149,13 @@ function updateChart(year_selected, top_selected) {
 		//************************************************************  
 
 
+
 		svg = d3.select("#stage_id")
 		 .append("svg")
 		 .attr("viewBox", "-40 20 1650 750")
 		 .style("overflow", "visible")
 		 .call(zoom)
 
-		
 	 	// svg = d3.select('#stage_id').append("svg")
 		 //    .attr("width", '100%')
 		 //    .attr("height", '100%')
@@ -189,7 +192,7 @@ function updateChart(year_selected, top_selected) {
 			.attr("height", height);
 
 		//************************************************************
-		// Create D3 line object + Pintar las lineas (corredores)
+		// Create D3 line object + Draw lines (runners)
 		//************************************************************
 
 		var line = d3.line()
@@ -208,8 +211,35 @@ function updateChart(year_selected, top_selected) {
 		});
 
 		//************************************************************
+		// Show the winners of the race
+		//************************************************************
+
+		// Draw lines of winners
+		var clicked_1 = d3.select("#r"+FIRST);  
+		var clicked_2 = d3.select("#r"+SECOND);
+		var clicked_3 = d3.select("#r"+THIRD);
+
+		showRunner(FIRST, runners, clicked_1, FIRST);
+		showRunner(SECOND, runners, clicked_2, SECOND);
+		showRunner(THIRD, runners, clicked_3, THIRD);
+
+		// Paint the colors of the winning names
+		showWinners(runners)
+
+
+		// Paint legend of the winners
+		svg.append("rect").attr("x", width-1510).attr("y",height-165).attr("width", 17).attr("height", 17).style("fill", "#e41a1c")
+		svg.append("rect").attr("x",width-1510).attr("y",height-135).attr("width", 17).attr("height", 17).style("fill", "#377eb8")
+		svg.append("rect").attr("x",width-1510).attr("y",height-105).attr("width", 17).attr("height", 17).style("fill", "#4daf4a")
+		svg.append("rect").attr("x",width-1510).attr("y",height-75).attr("width", 17).attr("height", 17).style("fill", "#984ea3")
+		svg.append("text").attr("x", width-1480).attr("y", height-150).text("FIRST").style("font-size", "20px").attr("alignment-baseline","middle")
+		svg.append("text").attr("x", width-1480).attr("y", height-120).text("SECOND").style("font-size", "20px").attr("alignment-baseline","middle")
+		svg.append("text").attr("x", width-1480).attr("y", height-90).text("THIRD").style("font-size", "20px").attr("alignment-baseline","middle")
+		svg.append("text").attr("x", width-1480).attr("y", height-60).text("OTHER").style("font-size", "20px").attr("alignment-baseline","middle")
+
+		//************************************************************
 	  	// Zoom specific updates
-	 	 //************************************************************
+	 	//************************************************************
 	  	function zoomed() {
 
 		    // create new scale ojects based on event
@@ -270,6 +300,7 @@ updateChart(allYears[0], n_runners[0]);
 
 
 String.prototype.toHHMMSS = function () {
+
     var sec_num = parseInt(this, 10); // don't forget the second param
     var hours   = Math.floor(sec_num / 3600);
     var minutes = Math.floor((sec_num - (hours * 3600)) / 60);

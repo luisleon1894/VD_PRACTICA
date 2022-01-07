@@ -10,9 +10,13 @@
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.3/jquery.min.js"></script>
 <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
 <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
-<script type="text/javascript" src="readFiles.js"></script>
-
-
+<script>
+	$(document).ready(function() {
+	    
+	    $.getScript('interaction.js');
+	    $.getScript('runners.js');
+	});
+</script>
 
 	<body>    
 		
@@ -24,21 +28,16 @@
 				<select class = "caja" id="selectYear"></select>
 
 
+			  	
+
+			  	<div id="winner1"> </div>
+
+			  	<div id="winner2"></div>
+
+			  	<div id="winner3"></div>
+
+			  	<!-- <button style="font-size: 17px;"  class = "cajaButton" id="refresh">Refresh</button> -->
 			  	<select class = "caja" id="selectRunnersNumber"></select>
-
-			  	<div id="content">
-			    	Runner 1
-			  	</div>
-
-			  	<div id="rightThing">
-			    	Runner 2
-			  	</div>
-
-			  	<!-- <div class="centerButton" id="buttonId">
-			    	<button style="height:40px; width:90px; font-size: 17px;" > Refresh </button>
-			  	</div> -->
-			  	<button style="font-size: 17px;"  class = "cajaButton" id="refresh">Refresh</button>
-
 			</div>
 
 			<div id="stage_id"> </div>

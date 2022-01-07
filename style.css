@@ -11,24 +11,28 @@
   width: 90%;
   display: flex;
 }
-#leftThing {
+#winner1 {
   margin:20px auto 20px auto; 
   width: 20%;
   text-align: center;
+  color: #e41a1c;
   /*background-color: blue;*/
   font-size: 17px;
 }
-#content {
+#winner2 {
   width: 20%;
   margin:20px auto 20px auto;
   text-align: center;
+  color: #377eb8;
   /*background-color: green;*/
   font-size: 17px;
+
 }
-#rightThing {
+#winner3 {
   width: 20%;
   margin:20px auto 20px auto; 
   text-align: center;
+  color: #4daf4a;
   /*background-color: yellow;*/
   font-size: 17px;  
 }
@@ -91,7 +95,7 @@ body {
   height: 100vh;
   margin: 0;
   font: 10px sans-serif;
-  background-color: #FFFAF0
+  /*background-color: #FFFAF0*/
 }
 
 /* Stack the layout on small devices/viewports. */
@@ -242,7 +246,7 @@ select:focus{ outline: none;}
 .line {
     fill: none;
     stroke-width: 2px;
-    stroke: #88a886
+    stroke: #fdc086
     /*stroke: #A9A9A9;*/
 }
 
@@ -258,10 +262,10 @@ select:focus{ outline: none;}
 div.tooltip {   
     position: absolute;         
     text-align: left;         
-    width: 200px;                    
+    width: 170px;                    
     height: 35px;                   
     padding: 7px;               
-    font: 12px sans-serif;      
+    font: 15px sans-serif;      
     background: lightsteelblue; 
     border: 0px;        
     border-radius: 8px;         
@@ -271,10 +275,10 @@ div.tooltip {
 div.tooltipRunner {   
     position: absolute;         
     text-align: right;         
-    width: 200px;                    
+    width: 170px;                    
     height: 35px;                   
     padding: 7px;               
-    font: 12px sans-serif;      
+    font: 15px sans-serif;      
     background: #b3b0de; 
     border: 0px;        
     border-radius: 8px;         
