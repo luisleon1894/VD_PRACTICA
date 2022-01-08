@@ -1,22 +1,27 @@
-// var colors = ["#e41a1c", "#377eb8", "#4daf4a", "#7570b3"]
-// var ridersSelect = [];
-
 var line_select = -1
 var line_unselect = -1
 
 $(document).on('click', 'path.line', function(event, i){
 
-    // var id = parseInt((this.id).slice(1, (this.id).length));
-    removeLine(line_unselect);
-
     line_select = parseInt((this.id).slice(1, (this.id).length));
-    line_unselect = line_select
 
-    indexColor = 3
-    var clicked = d3.select(this);
-    showRunner(line_select, runners, clicked, indexColor);
+    if(line_select > 2){ // runner final position > third
+
+        removeLine(line_unselect);
     
+        line_unselect = line_select
 
+        indexColor = 3
+        var clicked = d3.select(this);
+        showRunner(line_select, runners, clicked, indexColor);
+
+        //update legend value
+        var riderStage = runners.filter(r => r.id === line_select)[0];
+        position = riderStage.finalPos.toString()
+        name = riderStage.name.slice(0, riderStage.name.indexOf(" "))
+        document.getElementById("otherRunner").textContent = "POSITION: " + position + ", " + name;
+
+    }
 });
 
 d3.select("#selectYear").on("change", function(d) {
@@ -63,12 +68,10 @@ function showRunner(id_runner, runners, clicked, indexColor){
 
   var riderStage = runners.filter(r => r.id === id_runner);
   
-
   clicked.style("stroke", colors[indexColor])
     .style("stroke-width", "3.5px");
 
   showLabelInformation(riderStage);
-
 }
 
 //removeLine selected
@@ -117,7 +120,7 @@ function showLabelInformation(runners){
                .duration(200)    
                .style("opacity", .9);    
 
-            div.html("Elapsed time: " + d.elapsedTime + "<br/>"  + "Name: " + d.name.slice(0, d.name.indexOf(" ")))  
+            div.html("Elapsed time: " + d.elapsedTime + "<br/>" + "Time: "+ d.time + "<br/>" + "Place: " + d.namePlace)
                .style("left", (d3.event.pageX + 5) + "px")   
                .style("top", (d3.event.pageY - 30) + "px"); 
             

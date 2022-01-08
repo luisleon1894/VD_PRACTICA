@@ -8,7 +8,6 @@ var ridersSelect = [];
 var FIRST = 0
 var SECOND = 1
 var THIRD = 2
-// var colors = ["#e41a1c", "#377eb8", "#4daf4a", "#7570b3"]
 var colors = ["#e41a1c", "#377eb8", "#4daf4a", "#984ea3", "#ff7f00"]
 
 var xScaleLabel;
@@ -18,7 +17,7 @@ var showNAxisChart = 5;
 var separacioEntreKm = 10;
 
 
-allYears = ["YEAR 2008", "YEAR 2009", "YEAR 2011", "YEAR 2012","YEAR 2014","YEAR 2015","YEAR 2016", "YEAR 2017", "YEAR 2018", "YEAR 2019", "YEAR 2021"]
+allYears = ["YEAR 2008", "YEAR 2011","YEAR 2014","YEAR 2015","YEAR 2016", "YEAR 2017", "YEAR 2018", "YEAR 2019", "YEAR 2021"]
 
 n_runners = ["Top 5", "Top 10", "Top 50", "Top 100", "Top 500", "Top 1000", "ALL"]
 
@@ -58,45 +57,68 @@ function updateChart(year_selected, top_selected) {
 		columnsName = d3.keys(data[0]).filter(isPlace)
 
 		//Array[distance]
-		columnDistance = Array.from({length: columnsName.length}, (_, i) => i * 10)
+		columnDistance = []
+		for(var i = 1; i <= columnsName.length; i++)
+			columnDistance.push(i*10)
+		
 
-
-		// *****************
-		// Points runners
-		// *****************
+		// ********************************************
+		// Points runners and time average of finishers
+		// ********************************************
 
 		//n_runners = data.length
-		n_runners = parseInt(rank) + 1
+		n_runners = parseInt(rank)
 		var dataRunners = data.slice(0, n_runners)
+
+		sum_time = 0 // total time of finishers (in seconds)
+		finishers = 0
+		final_place = columnsName[columnsName.length - 1]
 
 		for(runner in dataRunners){
 
-			var points = [];
 
+			var points = [];
 			
 		 	for(place in columnsName){
 
+		 		// **************
+				// Points runners
+				// **************
 		 		var position_place = columnsName[place].toLowerCase() + "_pos"
+		 		var time_place = columnsName[place] + "_time"
 
 		 		points.push({id: parseInt(runner),
 		 						x: parseFloat(columnDistance[place]),
-		 						y: parseInt(data[runner][columnsName[place]]) + 200,
+		 						y: parseInt(data[runner][columnsName[place]]) + 100,
 		 		});
 
 			    labelsDataRunner.push({id: parseInt(runner),
 		                x: parseFloat(columnDistance[place]),
-		                y: parseInt(data[runner][columnsName[place]]) + 200,
+		                y: parseInt(data[runner][columnsName[place]]) + 100,
 		                elapsedTime: data[runner][columnsName[place]].toString().toHHMMSS(),
-		                provPosition: data[runner][position_place], 
+		                time: data[runner][time_place], 
+		                namePlace: columnsName[place],
 		                name: data[runner]['name']
 		              })
 
+				// *****************
+				// Update total time
+				// *****************
+				if(columnsName[place] == final_place && data[runner][time_place] != ""){
+					f_time_sec = toSeconds(data[runner][time_place])
+					sum_time += f_time_sec
+					finishers += 1
+				}
 		 	}
-			
-			runners.push({id: parseInt(runner), name: data[runner]["name"]})
-			timeDataRunner.push(points)
 
+			final_pos_col = d3.keys(data[0]).length - 1
+			final_pos_name = d3.keys(data[0])[final_pos_col]
+			
+			runners.push({id: parseInt(runner), name: data[runner]["name"], finalPos: data[runner][final_pos_name]})
+			timeDataRunner.push(points)
 		}
+
+		mean_time = (sum_time / finishers).toString().toHHMMSS()
 
 		//************************************************************
 		// Create Margins and Axis and hook our zoom function
@@ -126,7 +148,7 @@ function updateChart(year_selected, top_selected) {
 		var xAxis = d3.axisBottom(xScale)
 			.tickValues(columnDistance)
 			.tickFormat(function(d){
-				var tick_text = (columnsName[d/10]).toString()
+				var tick_text = (columnsName[d/10 - 1]).toString()
 				return tick_text;
 			})
 			.tickPadding(10)
@@ -188,8 +210,23 @@ function updateChart(year_selected, top_selected) {
 		svg.append("clipPath")
 			.attr("id", "clip")
 			.append("rect")
-			.attr("width", width)
+			.attr("width", width+20)
 			.attr("height", height);
+
+		//************************************************************
+		// Axis labels
+		//************************************************************
+
+		svg.append("text")
+		    .attr("class", "y label")
+		    .attr("text-anchor", "end")
+		    .attr("y", -50)
+		    .attr("x", 0)
+		    .attr("dy", ".75em")
+		    .attr("transform", "rotate(-90)")
+		    .style("font-size", "22px")
+		    .text("ELAPSED TIME (1st.)");
+
 
 		//************************************************************
 		// Create D3 line object + Draw lines (runners)
@@ -228,14 +265,20 @@ function updateChart(year_selected, top_selected) {
 
 
 		// Paint legend of the winners
-		svg.append("rect").attr("x", width-1510).attr("y",height-165).attr("width", 17).attr("height", 17).style("fill", "#e41a1c")
-		svg.append("rect").attr("x",width-1510).attr("y",height-135).attr("width", 17).attr("height", 17).style("fill", "#377eb8")
-		svg.append("rect").attr("x",width-1510).attr("y",height-105).attr("width", 17).attr("height", 17).style("fill", "#4daf4a")
-		svg.append("rect").attr("x",width-1510).attr("y",height-75).attr("width", 17).attr("height", 17).style("fill", "#984ea3")
-		svg.append("text").attr("x", width-1480).attr("y", height-150).text("FIRST").style("font-size", "20px").attr("alignment-baseline","middle")
-		svg.append("text").attr("x", width-1480).attr("y", height-120).text("SECOND").style("font-size", "20px").attr("alignment-baseline","middle")
-		svg.append("text").attr("x", width-1480).attr("y", height-90).text("THIRD").style("font-size", "20px").attr("alignment-baseline","middle")
-		svg.append("text").attr("x", width-1480).attr("y", height-60).text("OTHER").style("font-size", "20px").attr("alignment-baseline","middle")
+		svg.append("rect").attr("x", width-1510).attr("y",height-250).attr("width", 17).attr("height", 17).style("fill", "#e41a1c")
+		svg.append("rect").attr("x",width-1510).attr("y",height-220).attr("width", 17).attr("height", 17).style("fill", "#377eb8")
+		svg.append("rect").attr("x",width-1510).attr("y",height-190).attr("width", 17).attr("height", 17).style("fill", "#4daf4a")
+		svg.append("rect").attr("x",width-1510).attr("y",height-160).attr("width", 17).attr("height", 17).style("fill", "#984ea3")
+		svg.append("text").attr("x", width-1480).attr("y", height-235).text("FIRST").style("font-size", "22px").attr("alignment-baseline","middle")
+		svg.append("text").attr("x", width-1480).attr("y", height-205).text("SECOND").style("font-size", "22px").attr("alignment-baseline","middle")
+		svg.append("text").attr("x", width-1480).attr("y", height-175).text("THIRD").style("font-size", "22px").attr("alignment-baseline","middle")
+		svg.append("text").attr("id", "otherRunner").attr("x", width-1480).attr("y", height-145).text("OTHER").style("font-size", "22px").attr("alignment-baseline","middle");	
+
+		//************************************************************
+		// Show the mean of the runners
+		//************************************************************
+
+		svg.append("text").attr("x", width-1510).attr("y", height-80).text("FINISHERS AVG.: " + mean_time).style("font-size", "22px").attr("alignment-baseline","middle")
 
 		//************************************************************
 	  	// Zoom specific updates
@@ -313,6 +356,16 @@ String.prototype.toHHMMSS = function () {
 }
 
 
+function toSeconds(time){
+
+	h = parseInt(time[0] + time[1])
+    m = parseInt(time[3] + time[4])
+    s = parseInt(time[6] + time[7])
+
+    total_seconds = s + m*60 + h*60*60
+	
+	return total_seconds
+}
 
 function updateAxisPlace(arryDomain, columnsDistance){
 
@@ -420,6 +473,11 @@ function valorElapsedMax(dataElapsed){
 
 function isPlace(infoColumn){
   
-  // check if column name contains a letter in upper case
-  return !(infoColumn == infoColumn.toLowerCase() && infoColumn != infoColumn.toUpperCase());
+  if(!infoColumn.includes("_time")){
+  		// check if column name contains a letter in upper case
+  		return !(infoColumn == infoColumn.toLowerCase() && infoColumn != infoColumn.toUpperCase());  	
+  }
+  else{
+  	return false
+  }  
 }
